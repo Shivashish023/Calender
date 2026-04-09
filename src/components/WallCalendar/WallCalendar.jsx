@@ -1,4 +1,4 @@
-import { startOfMonth } from 'date-fns'
+import { startOfDay, startOfMonth } from 'date-fns'
 import { useEffect, useMemo, useState } from 'react'
 import heroSrc from '../../assets/wall-hero.svg'
 import { useDateRangeSelection } from '../../hooks/useDateRangeSelection'
@@ -9,7 +9,8 @@ import { NotesPanel } from './NotesPanel'
 
 export function WallCalendar() {
   const [monthDate, setMonthDate] = useState(() => startOfMonth(new Date()))
-  const { start, end, onDayClick, clear } = useDateRangeSelection()
+  const today = startOfDay(new Date())
+  const { start, end, onDayClick, clear } = useDateRangeSelection(today, null)
   const { theme, setTheme } = useTheme()
 
   useEffect(() => {
