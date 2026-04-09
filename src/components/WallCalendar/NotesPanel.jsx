@@ -14,7 +14,7 @@ function rangeTitle(monthDate, start, end) {
   return `Notes (${label})`
 }
 
-export function NotesPanel({ monthDate, start, end, heroSrc }) {
+export function NotesPanel({ monthDate, start, end, heroSrc, noteEntries = [], onNotesChange, onNoteSelect, onNoteDelete }) {
   const mKey = monthKey(monthDate)
 
   const monthStorageKey = useMemo(() => `wc:month:${mKey}`, [mKey])
@@ -55,7 +55,10 @@ export function NotesPanel({ monthDate, start, end, heroSrc }) {
               start ? `Write notes for ${rangeTitle(monthDate, start, end)}...` : 'Write notes for the month...'
             }
             value={activeValue}
-            onChange={(e) => setActiveValue(e.target.value)}
+            onChange={(e) => {
+              setActiveValue(e.target.value)
+              onNotesChange?.()
+            }}
           />
 
           <div className="mt-1 flex items-center justify-between gap-3">
@@ -71,6 +74,46 @@ export function NotesPanel({ monthDate, start, end, heroSrc }) {
             </button>
           </div>
         </div>
+
+        {noteEntries.length > 0 ? (
+          <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <div>
+                <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">Saved notes</div>
+
+              </div>
+            </div>
+            <div className="max-h-20 space-y-2 overflow-y-auto pr-1">
+              {noteEntries.map((entry) => (
+                <button
+                  key={entry.id}
+                  type="button"
+                  onClick={() => onNoteSelect?.(entry)}
+                  className="group w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-left text-sm text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-200 dark:hover:border-slate-700 dark:hover:bg-slate-900"
+                >
+                  <div className="flex items-start justify-between gap-1">
+                    <div className="min-w-0">
+                      {/* <div className="truncate font-semibold text-slate-900 dark:text-slate-100 ">{entry.title}</div> */}
+                      <div className="mt-1 text-xs leading-5 text-slate-500 dark:text-slate-400">
+                        {entry.content.length > 80 ? `${entry.content.slice(0, 80).trim()}…` : entry.content || 'No note content'}
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={(event) => {
+                        event.stopPropagation()
+                        onNoteDelete?.(entry.id)
+                      }}
+                      className="inline-flex h-4 items-center justify-center rounded-full border border-slate-300 bg-white px-2 text-[11px] font-semibold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:bg-slate-800"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
       </div>
     </div>
   )

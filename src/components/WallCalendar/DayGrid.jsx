@@ -7,7 +7,7 @@ export function DayGrid({ monthDate, start, end, onDayClick, noteRanges = [] }) 
   const cells = buildMonthGrid(monthDate)
 
   return (
-    <div className="px-4 pb-4 md:px-5">
+    <div className="px-4 pb-4 md:px-5 ">
       <div className="grid grid-cols-7 gap-2 pb-2 pt-2.5 text-center text-[11px] font-semibold tracking-widest text-slate-500 md:pb-2.5 md:text-xs dark:text-slate-400">
         {DOW.map((d) => (
           <div key={d}>{d}</div>

@@ -3,19 +3,29 @@ import { useEffect, useMemo, useState } from 'react'
 import heroSrc from '../../assets/wall-hero.svg'
 import { useDateRangeSelection } from '../../hooks/useDateRangeSelection'
 import { useTheme } from '../../hooks/useTheme'
+import { parseMonthNotes } from '../../utils/calendar'
 import { DayGrid } from './DayGrid'
 import { MonthHeader } from './MonthHeader'
 import { NotesPanel } from './NotesPanel'
 
 export function WallCalendar() {
   const [monthDate, setMonthDate] = useState(() => startOfMonth(new Date()))
+  const [noteRefresh, setNoteRefresh] = useState(0)
   const today = startOfDay(new Date())
-  const { start, end, onDayClick, clear } = useDateRangeSelection(today, null)
+  const { start, end, onDayClick, clear, setRange } = useDateRangeSelection(today, null)
   const { theme, setTheme } = useTheme()
 
   useEffect(() => {
     document.documentElement.classList.remove('dark')
   }, [])
+
+  const noteEntries = useMemo(() => parseMonthNotes(monthDate), [monthDate, noteRefresh])
+  const handleNotesChange = () => setNoteRefresh((count) => count + 1)
+  const handleNoteSelect = (entry) => setRange(entry.start, entry.end)
+  const handleNoteDelete = (key) => {
+    localStorage.removeItem(key)
+    setNoteRefresh((count) => count + 1)
+  }
 
   const selectionHint = useMemo(() => {
     if (!start) return 'Click a date to set the start of your range.'
@@ -29,7 +39,16 @@ export function WallCalendar() {
         <div className="mx-auto w-full max-w-3xl overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-card dark:border-slate-800 dark:bg-slate-950">
           <div className="grid grid-cols-1 md:grid-cols-[330px_1fr]">
             <div className="border-b border-slate-200 p-4 md:border-b-0 md:border-r md:p-5 dark:border-slate-800">
-              <NotesPanel monthDate={monthDate} start={start} end={end} heroSrc={heroSrc} />
+              <NotesPanel
+                monthDate={monthDate}
+                start={start}
+                end={end}
+                heroSrc={heroSrc}
+                noteEntries={noteEntries}
+                onNotesChange={handleNotesChange}
+                onNoteSelect={handleNoteSelect}
+                onNoteDelete={handleNoteDelete}
+              />
             </div>
 
             <div>
@@ -55,7 +74,6 @@ export function WallCalendar() {
                   </button>
                 </div>
               </div>
-
               <DayGrid monthDate={monthDate} start={start} end={end} onDayClick={onDayClick} />
             </div>
           </div>
